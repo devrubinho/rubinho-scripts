@@ -1,3 +1,6 @@
+# JSON Settings
+
+```
 {
   // Somente decoração
   "workbench.colorTheme": "Omni",   
@@ -69,3 +72,4 @@
     }
   }
 }
+```
