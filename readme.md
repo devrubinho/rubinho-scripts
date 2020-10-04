@@ -12,6 +12,10 @@ que ninguém é obrigado a decorar. Além disso, servirá de tutorial eventualme
 
 - [Monorepo](monorepo/monorepo.md)
 
+### Mobile
+
+- [React Native - Emulador](mobile/react-native-emulador.md)
+
 ### VS Code
 
 - [Extensões](vs-code/extensions.md)
