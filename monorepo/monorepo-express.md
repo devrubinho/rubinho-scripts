@@ -9,6 +9,12 @@ rodar no terminal:
 
 `yarn init -y`
 
+## Passo 16
+Dentro de 
+packages > server > package.json
+alterar o nome do projeto para 
+@NOME_DO_PROJETO/server
+
 ## Passo 2
 Dentro de
 packages > server
@@ -142,9 +148,5 @@ dentro de
 packages > server
 para testar se tudo está ok
 
-## Passo 16
-Dentro de 
-packages > server > package.json
-alterar o nome do projeto para 
-@NOME_DO_PROJETO/server
+
 

@@ -1,6 +1,5 @@
 # Anotações do Time (nome a definir)
 
-
 ## Sobre
 
 Este repositório foi criado com o objetivo de compartilhar códigos do dia-a-dia 
@@ -11,6 +10,9 @@ que ninguém é obrigado a decorar. Além disso, servirá de tutorial eventualme
 ### Monorepo
 
 - [Monorepo](monorepo/monorepo.md)
+- [Monorepo - Node.js com Express.js](monorepo/monorepo-express.md)
+- [Monorepo - ReactJS](monorepo/monorepo-react.md)
+- [Monorepo - React Native](monorepo/monorepo-react-native.md)
 
 ### Web
 
