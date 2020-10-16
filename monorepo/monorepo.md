@@ -266,6 +266,16 @@ Caso precise do axios ou de testes com jest volte para esse tutorial para contin
 
 ```
 
+## Adicionar axios
+
+```bash
+  # Abrir pastas packages/shared/axios-config
+  $ cd packages/shared/axios-config
+  # Rodar no terminal o  seguinte comando:
+  $ yarn add axios 
+
+```
+
 ## Alterar nome do projeto
 
 ```bash
@@ -309,6 +319,14 @@ Caso precise do axios ou de testes com jest volte para esse tutorial para contin
   # No arquivo package.json alterar a tag main para :
   "main": "index.ts",
 ```
+
+## Como usar o axios nos projetos
+
+Dentro do projeto que você deseja usar, como o web, adicione
+"@NOME_DO_PROJETO/axios-config": "*"
+no package.json
+e depois no arquivo que for utilizar importe com
+import api from '@NOME_DO_PROJETO/axios-config'
 
 ## Adicionar  jest
 
