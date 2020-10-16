@@ -1226,7 +1226,7 @@ const SignIn: React.FC = () => {
 export default SignIn
 ```
 
-## ..
+## ...
 Alterar todo o conteúdo de
 src > packages > web > src > routes > index.tsx
 por:
