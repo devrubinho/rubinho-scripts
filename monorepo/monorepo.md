@@ -126,7 +126,7 @@ Na raiz do projeto rodar no terminal:
   # Abrir pastas para acessar o arquivo .eslintrc.js
   $ cd packages/eslint-config/.eslintrc.js
   ```
-  Adicionar configuração  que se encontra : [aqui](monorepo/monorepo-eslint.md)
+  Adicionar configuração  que se encontra : [aqui](monorepo-eslint.md)
 
 
 
