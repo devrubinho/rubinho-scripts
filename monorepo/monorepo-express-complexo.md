@@ -227,7 +227,7 @@ tsconfig.json
       "@modules/*": ["modules/*"],
       "@config/*": ["config/*"],
       "@shared/*": ["shared/*"]
-    },
+    }
   },
   "include": ["./src/**/*"]
 }
@@ -2340,3 +2340,217 @@ tmp/uploads/*
 ```
 
 Obs: Se necessário excluir com git rm arquivos indesejados do controle de versão
+
+## ...
+Dentro de packages > server
+rodar no terminal 
+`yarn add jest @types/jest ts-jest -D`
+
+## ...
+Dentro de packages > server
+rodar no terminal 
+`yarn jest --init`
+
+## ..
+Selecionar opções como abaixo:
+1 - Would you like to use Jest when running "test" script in "package.json"? ... yes
+2 - Choose the test environment that will be used for testing » node
+3 - Do you want Jest to add coverage reports? ... no
+4 - Which provider should be used to instrument code for coverage? » babel
+5 - Automatically clear mock calls and instances between every test? ... yes
+
+## ...
+Dentro do arquivo
+packages > server > jest.config.js
+descomentar tag e colocar como abaixo:
+`preset: 'ts-jest',`
+
+## ...
+Dentro do arquivo
+packages > server > jest.config.js
+descomentar tag e colocar como abaixo:
+`testMatch: ['**/*.spec.ts']`
+
+## ...
+Dentro do arquivo
+packages > server > jest.config.js
+adicionar o código abaixo no inicio do arquivo:
+
+```
+const { pathsToModuleNameMapper } = require('ts-jest/utils')
+const { compilerOptions } = require('./tsconfig.json')
+```
+
+## ...
+Dentro do arquivo
+packages > server > jest.config.js
+descomentar tag e colocar como abaixo:
+```
+moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
+  prefix: '<rootDir>/src/'
+}),
+```
+
+## ...
+Dentro do arquivo
+packages > server > jest.config.js
+descomentar tag e colocar como abaixo:
+`collectCoverage: true,`
+
+## ...
+Dentro do arquivo
+packages > server > jest.config.js
+descomentar tag e colocar como abaixo:
+`collectCoverageFrom: ['<rootDir>/src/modules/**/services/*.ts'],`
+
+## ...
+Dentro do arquivo
+packages > server > jest.config.js
+descomentar tag e colocar como abaixo:
+`coverageDirectory: 'coverage',`
+
+## ...
+Dentro do arquivo
+packages > server > jest.config.js
+descomentar tag e colocar como abaixo:
+`coverageReporters: ['text-summary', 'lcov'],`
+  
+## ...
+Criar arquivo
+packages > server > src > modules > users > service > CreateUserService.spec.ts
+e dentro colocar:
+
+```
+import AppError from '@shared/errors/AppError'
+
+import FakeHashProvider from '../providers/HashProvider/fakes/FakeHashProvider'
+import FakeUsersRepository from '../repositories/fakes/FakeUsersRepository'
+import CreateUserService from './CreateUserService'
+
+let fakeUsersRepository: FakeUsersRepository
+let fakeHashProvider: FakeHashProvider
+let createUser: CreateUserService
+
+describe('CreateUser', () => {
+  beforeEach(() => {
+    fakeUsersRepository = new FakeUsersRepository()
+    fakeHashProvider = new FakeHashProvider()
+    createUser = new CreateUserService(fakeUsersRepository, fakeHashProvider)
+  })
+
+  it('should be able to create a new user', async () => {
+    const user = await createUser.execute({
+      name: 'Junior Oliveira',
+      email: 'junior@gmail.com',
+      password: '12345678'
+    })
+
+    expect(user).toHaveProperty('id')
+  })
+
+  it('should not be able to create a new user with same email', async () => {
+    await createUser.execute({
+      name: 'Junior Oliveira',
+      email: 'junior@gmail.com',
+      password: '12345678'
+    })
+
+    await expect(
+      createUser.execute({
+        name: 'Junior Oliveira',
+        email: 'junior@gmail.com',
+        password: '12345678'
+      })
+    ).rejects.toBeInstanceOf(AppError)
+  })
+})
+```
+
+## ..
+Criar pasta
+packages > server > src > modules > users > providers > HashProvider > fakes
+
+## ..
+Criar arquivo
+packages > server > src > modules > users > providers > HashProvider > fakes > FakeHashProvider.ts
+e dentro colocar:
+
+```
+import IHashProvider from '../models/IHashProvider'
+
+export default class FakeHashProvider implements IHashProvider {
+  public async generateHash(payload: string): Promise<string> {
+    return payload
+  }
+
+  public async compareHash(payload: string, hashed: string): Promise<boolean> {
+    return payload === hashed
+  }
+}
+```
+
+## ..
+Criar pasta
+packages > server > src > modules > users > repositories > fakes
+
+## ...
+Criar arquivo
+packages > server > src > modules > users > repositories > fakes > FakeUsersRepository.ts
+e dentro colocar:
+
+```
+import { uuid } from 'uuidv4'
+
+import IUsersRepository from '@modules/users/repositories/IUsersRepository'
+import ICreateUserDTO from '@modules/users/dtos/ICreateUserDTO'
+import User from '@modules/users/infra/typeorm/entities/User'
+
+class FakeUsersRepository implements IUsersRepository {
+  private users: User[] = []
+
+  public async findById(id: string): Promise<User | undefined> {
+    const findUser = this.users.find(user => user.id === id)
+
+    return findUser
+  }
+
+  public async findByEmail(email: string): Promise<User | undefined> {
+    const findUser = this.users.find(user => user.email === email)
+
+    return findUser
+  }
+
+  public async create(userData: ICreateUserDTO): Promise<User> {
+    const user = new User()
+
+    Object.assign(user, { id: uuid() }, userData)
+
+    this.users.push(user)
+
+    return user
+  }
+
+  public async save(user: User): Promise<User> {
+    const findIndex = this.users.findIndex(findUser => findUser.id === user.id)
+
+    this.users[findIndex] = user
+
+    return user
+  }
+}
+
+export default FakeUsersRepository
+```
+## ...
+dentro de
+packages > server
+rodar no terminal:
+
+`yarn add uuidv4`
+
+## ...
+dentro de
+packages > server
+rodar no terminal:
+
+`yarn test`
