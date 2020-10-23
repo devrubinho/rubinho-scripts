@@ -283,356 +283,403 @@ Adicionar dentro do array de nohoist os dois elementos abaixo:
   },
 ```
 
-## ...
-Criar pasta
-packages > server > src > modules > users > infra
-
-## ...
-Criar pasta
-packages > server > src > modules > users > repositories
-
-## ...
-Criar pasta
-packages > server > src > modules > users > services
-
-## ...
-Criar pasta
-packages > server > src > modules > users > dtos
-
-## ...
-Criar pasta
-packages > server > src > modules > users > infra > http
-
-## ...
-Criar pasta
-packages > server > src > modules > users > infra > http > routes
-
-## ...
-Criar arquivo
-packages > server > src > modules > users > infra > http > routes > users.routes.ts
-e dentro colocar:
-
+## Criar pasta infra
+```bash
+  # Dentro de packages/server/src/modules/users
+  $ cd packages/server/src/modules/users
+  # Execute
+  $ mkdir infra
 ```
-import { Router } from 'express'
-import { celebrate, Segments, Joi } from 'celebrate'
-
-import multer from 'multer'
-import uploadConfig from '@config/upload'
-
-import UsersController from '../controllers/UsersController'
-import UserAvatarController from '../controllers/UserAvatarController'
-
-import ensureAuthenticated from '../middlewares/ensureAuthenticated'
-
-const usersRouter = Router()
-const usersController = new UsersController()
-const userAvatarController = new UserAvatarController()
-const upload = multer(uploadConfig)
-
-usersRouter.post(
-  '/',
-  celebrate({
-    [Segments.BODY]: {
-      name: Joi.string().required(),
-      email: Joi.string().email().required(),
-      password: Joi.string().required(),
-    },
-  }),
-  usersController.create,
-)
-
-usersRouter.patch(
-  '/avatar',
-  ensureAuthenticated,
-  upload.single('avatar'),
-  userAvatarController.update,
-)
-
-export default usersRouter
+## Criar pasta repositories
+```bash
+  # Dentro de packages/server/src/modules/users
+  $ cd packages/server/src/modules/users
+  # Execute
+  $ mkdir repositories
 ```
-
-## ...
-rodar em
-packages > server
-no terminal:
-
-`yarn add celebrate multer`
-
-## ...
-Criar pasta
-packages > server > src > config
-
-## ...
-Criar Arquivo
-packages > server > src > config > upload.ts
-e dentro colocar: 
-
+## Criar pasta services
+```bash
+  # Dentro de packages/server/src/modules/users
+  $ cd packages/server/src/modules/users
+  # Execute
+  $ mkdir services
 ```
-import multer from 'multer'
-import path from 'path'
-import crypto from 'crypto'
+## Criar pasta dtos
+```bash
+  # Dentro de packages/server/src/modules/users
+  $ cd packages/server/src/modules/users
+  # Execute
+  $ mkdir dtos
+```
+## Criar pasta http
+```bash
+  # Dentro de packages/server/src/modules/users/infra
+  $ cd packages/server/src/modules/users/infra
+  # Execute
+  $ mkdir http
+```
+## Criar pasta routes
+```bash
+  # Dentro de packages/server/src/modules/users/infra/http
+  $ cd packages/server/src/modules/users/infra/http
+  # Execute
+  $ mkdir routes
+```
+## Criar arquivo users.routes.ts
+```bash
+  # Dentro de packages/server/src/modules/users/infra/http/routes
+  $ cd packages/server/src/modules/users/infra/http/routes
 
-const tmpFolder = path.resolve(__dirname, '..', '..', 'tmp')
+  # Criar arquivo users.routes.ts e dentro colocar:
 
-export default {
-  tmpFolder,
-  uploadsFolder: path.resolve(tmpFolder, 'uploads'),
-  storage: multer.diskStorage({
-    destination: tmpFolder,
-    filename(request, file, callback) {
-      const fileHash = crypto.randomBytes(10).toString('hex')
-      const filename = `${fileHash}-${file.originalname}`
 
-      return callback(null, filename)
-    },
-  }),
-}
+  import { Router } from 'express'
+  import { celebrate, Segments, Joi } from 'celebrate'
+
+  import multer from 'multer'
+  import uploadConfig from '@config/upload'
+
+  import UsersController from '../controllers/UsersController'
+  import UserAvatarController from '../controllers/UserAvatarController'
+
+  import ensureAuthenticated from '../middlewares/ensureAuthenticated'
+
+  const usersRouter = Router()
+  const usersController = new UsersController()
+  const userAvatarController = new UserAvatarController()
+  const upload = multer(uploadConfig)
+
+  usersRouter.post(
+    '/',
+    celebrate({
+      [Segments.BODY]: {
+        name: Joi.string().required(),
+        email: Joi.string().email().required(),
+        password: Joi.string().required(),
+      },
+    }),
+    usersController.create,
+  )
+
+  usersRouter.patch(
+    '/avatar',
+    ensureAuthenticated,
+    upload.single('avatar'),
+    userAvatarController.update,
+  )
+
+  export default usersRouter
 ```
 
-## ...
-Criar pasta
-packages > server > src > modules > users > infra > http > controllers
-
-## ...
-Criar Arquivo
-packages > server > src > modules > users > infra > http > controllers > UsersController.ts
-e dentro colocar:
-
+## Add celebrate multer
+```bash
+  # Dentro de packages/server
+  $ cd packages/server
+  # Execute
+  $ yarn add celebrate multer
 ```
-import { Request, Response } from 'express'
-import { container } from 'tsyringe'
-import { classToClass } from 'class-transformer'
+## Criar pasta config
+```bash
+  # Dentro de packages/server/src
+  $ cd packages/server/src
+  # Execute
+  $ mkdir config
+```
+## Criar arquivo upload.ts
+```bash
+  # Dentro de packages/server/src/config
+  $ cd packages/server/src/config
 
-import CreateUserService from '@modules/users/services/CreateUserService'
+  # Criar arquivo  upload.ts e dentro colocar: 
 
-export default class UsersController {
-  public async create(request: Request, response: Response): Promise<Response> {
-    const { name, email, password } = request.body
+  import multer from 'multer'
+  import path from 'path'
+  import crypto from 'crypto'
 
-    const createUser = container.resolve(CreateUserService)
+  const tmpFolder = path.resolve(__dirname, '..', '..', 'tmp')
 
-    const user = await createUser.execute({
-      name,
-      email,
-      password,
-    })
+  export default {
+    tmpFolder,
+    uploadsFolder: path.resolve(tmpFolder, 'uploads'),
+    storage: multer.diskStorage({
+      destination: tmpFolder,
+      filename(request, file, callback) {
+        const fileHash = crypto.randomBytes(10).toString('hex')
+        const filename = `${fileHash}-${file.originalname}`
 
-    delete user.password
-
-    return response.json(classToClass(user))
+        return callback(null, filename)
+      },
+    }),
   }
-}
 ```
 
-## ...
-Criar Arquivo
-packages > server > src > modules > users > infra > http > controllers > UserAvatarController.ts
-e dentro colocar:
-
+## Criar pasta controllers
+```bash
+  # Dentro de packages/server/src/modules/users/infra/http
+  $ cd packages/server/src/modules/users/infra/http
+  # Execute
+  $ mkdir controllers
 ```
-import { Request, Response } from 'express'
-import { container } from 'tsyringe'
-import { classToClass } from 'class-transformer'
 
-import UpdateUserAvatarService from '@modules/users/services/UpdateUserAvatarService'
+## Criar Arquivo UsersController.ts
+```bash
+  # Dentro de packages/server/src/modules/users/infra/http/controllers
+  $ cd packages/server/src/modules/users/infra/http/controllers
 
-export default class UserAvatarController {
-  public async update(request: Request, response: Response): Promise<Response> {
-    const updateUserAvatar = container.resolve(UpdateUserAvatarService)
+  # Criar arquivo  UsersController.ts e dentro colocar:
 
-    const user = await updateUserAvatar.execute({
-      user_id: request.user.id,
-      avatarFilename: request.file.filename,
-    })
+  import { Request, Response } from 'express'
+  import { container } from 'tsyringe'
+  import { classToClass } from 'class-transformer'
 
-    delete user.password
+  import CreateUserService from '@modules/users/services/CreateUserService'
 
-    return response.json(classToClass(user))
+  export default class UsersController {
+    public async create(request: Request, response: Response): Promise<Response> {
+      const { name, email, password } = request.body
+
+      const createUser = container.resolve(CreateUserService)
+
+      const user = await createUser.execute({
+        name,
+        email,
+        password,
+      })
+
+      delete user.password
+
+      return response.json(classToClass(user))
+    }
   }
-}
 ```
 
-## ...
-dentro de
-packages > server
-rodar no terminal:
+## Criar Arquivo UserAvatarController.ts
+```bash
+  # Dentro de packages/server/src/modules/users/infra/http/controllers
+  $ cd packages/server/src/modules/users/infra/http/controllers
 
-`yarn add class-transformer tsyringe`
+  # Criar arquivo UserAvatarController.ts e dentro colocar:
 
-## ...
-Criar pasta
-packages > server > src > modules > users > infra > http > middlewares
+  import { Request, Response } from 'express'
+  import { container } from 'tsyringe'
+  import { classToClass } from 'class-transformer'
 
-## ...
-Criar arquivo
-packages > server > src > modules > users > infra > http > middlewares > ensureAuthenticated.ts
-e dentro colocar:
+  import UpdateUserAvatarService from '@modules/users/services/UpdateUserAvatarService'
 
+  export default class UserAvatarController {
+    public async update(request: Request, response: Response): Promise<Response> {
+      const updateUserAvatar = container.resolve(UpdateUserAvatarService)
+
+      const user = await updateUserAvatar.execute({
+        user_id: request.user.id,
+        avatarFilename: request.file.filename,
+      })
+
+      delete user.password
+
+      return response.json(classToClass(user))
+    }
+  }
 ```
-import { Request, Response, NextFunction } from 'express'
-import { verify } from 'jsonwebtoken'
 
-import authConfig from '@config/auth'
+## Add class-transformer tsyringe
+```bash
+  # Dentro de packages/server
+  $ cd packages/server
+  # Execute
+  $ yarn add class-transformer tsyringe
+```
 
-import AppError from '@shared/errors/AppError'
+## Criar pasta middlewares
+```bash
+  # Dentro de packages/server/src/modules/users/infra/http
+  $ cd packages/server/src/modules/users/infra/http
+  # Execute 
+  $ mkdir middlewares
+```
 
-interface TokenPayload {
-  iat: number
-  exp: number
-  sub: string
-}
+## Criar arquivo  ensureAuthenticated.ts
+```bash
+  # Dentro de packages/server/src/modules/users/infra/http/middlewares
+  $ cd packages/server/src/modules/users/infra/http/middlewares
 
-export default function ensureAuthenticated(
-  request: Request,
-  response: Response,
-  next: NextFunction,
-): void {
-  const authHeader = request.headers.authorization
+  # Criar arquivo ensureAuthenticated.ts e dentro colocar:
 
-  if (!authHeader) {
-    throw new AppError('JWT não foi enviado', 401)
+  import { Request, Response, NextFunction } from 'express'
+  import { verify } from 'jsonwebtoken'
+
+  import authConfig from '@config/auth'
+
+  import AppError from '@shared/errors/AppError'
+
+  interface TokenPayload {
+    iat: number
+    exp: number
+    sub: string
   }
 
-  const [, token] = authHeader.split(' ')
+  export default function ensureAuthenticated(
+    request: Request,
+    response: Response,
+    next: NextFunction,
+  ): void {
+    const authHeader = request.headers.authorization
 
-  try {
-    const decoded = verify(token, authConfig.jwt.secret)
-
-    const { sub } = decoded as TokenPayload
-
-    request.user = { id: sub }
-
-    return next()
-  } catch {
-    throw new AppError('JWT inválido', 401)
-  }
-}
-```
-
-## ...
-dentro de
-packages > server
-rodar no terminal:
-
-`yarn add jsonwebtoken`
-
-## ...
-Criar arquivo
-packages > server > src > config > auth.ts
-e dentro colocar:
-
-```
-export default {
-  jwt: {
-    secret: process.env.APP_SECRET || 'default',
-    expiresIn: '1d',
-  },
-}
-```
-
-## ...
-Criar arquivo
-packages > server > .env
-e dentro colocar:
-
-```
-APP_SECRET=
-APP_WEB_URL=http://localhost:3000
-APP_API_URL=http://localhost:3333
-```
-
-## ...
-Criar arquivo
-packages > server > .env.example
-e dentro colocar:
-
-```
-APP_SECRET=
-APP_WEB_URL=http://localhost:3000
-APP_API_URL=http://localhost:3333
-```
-
-## ...
-dentro de
-packages > server
-rodar no terminal:
-
-`yarn add dotenv`
-
-## ...
-Criar pasta
-packages > server > src > modules > users > services > CreateUserService.ts
-e dentro colocar:
-
-```
-import { injectable, inject } from 'tsyringe'
-
-import ICacheProvider from '@shared/container/providers/CacheProvider/models/ICacheProvider'
-
-import AppError from '@shared/errors/AppError'
-import IUsersRepository from '../repositories/IUsersRepository'
-import IHashProvider from '../providers/HashProvider/models/IHashProvider'
-
-import User from '../infra/typeorm/entities/User'
-
-interface IRequest {
-  name: string
-  email: string
-  password: string
-}
-
-@injectable()
-class CreateUserService {
-  constructor(
-    @inject('UsersRepository')
-    private usersRepository: IUsersRepository,
-
-    @inject('HashProvider')
-    private hashProvider: IHashProvider,
-
-    @inject('CacheProvider')
-    private cacheProvider: ICacheProvider,
-  ) {}
-
-  public async execute({ name, email, password }: IRequest): Promise<User> {
-    const checkUserExists = await this.usersRepository.findByEmail(email)
-
-    if (checkUserExists) {
-      throw new AppError('O e-mail já existe na base de dados')
+    if (!authHeader) {
+      throw new AppError('JWT não foi enviado', 401)
     }
 
-    const hashedPassword = await this.hashProvider.generateHash(password)
+    const [, token] = authHeader.split(' ')
 
-    const user = await this.usersRepository.create({
-      name,
-      email,
-      password: hashedPassword,
-    })
+    try {
+      const decoded = verify(token, authConfig.jwt.secret)
 
-    await this.cacheProvider.invalidatePrefix('providers-list')
+      const { sub } = decoded as TokenPayload
 
-    return user
+      request.user = { id: sub }
+
+      return next()
+    } catch {
+      throw new AppError('JWT inválido', 401)
+    }
   }
-}
-
-export default CreateUserService
 ```
 
-## ...
-Criar arquivo
-packages > server > src > modules > users > repositories > IUsersRepository.ts
-e dentro colocar
-
+## Add jsonwebtoken
+```bash
+  # Dentro de packages/server
+  $ cd packages/server
+  # Execute
+  $ yarn add jsonwebtoken
 ```
-import User from '../infra/typeorm/entities/User'
-import ICreateUserDTO from '../dtos/ICreateUserDTO'
 
-export default interface IUsersRepository {
-  findById(id: string): Promise<User | undefined>
-  findByEmail(email: string): Promise<User | undefined>
-  create(data: ICreateUserDTO): Promise<User>
-  save(user: User): Promise<User>
-}
+## Criar arquivo auth.ts
+```bash
+  # Dentro de packages/server/src/config
+  $ cd packages/server/src/config
+
+  # Criar arquivo auth.ts e dentro colocar:
+
+  export default {
+    jwt: {
+      secret: process.env.APP_SECRET || 'default',
+      expiresIn: '1d',
+    },
+  }
+```
+
+## Criar arquivo .env
+```bash
+  # Dentro de packages/server
+  $ cd packages/server
+
+  # Criar arquivo .env e dentro colocar:
+
+  APP_SECRET=
+  APP_WEB_URL=http://localhost:3000
+  APP_API_URL=http://localhost:3333
+```
+
+## Criar arquivo .env.example
+```bash
+  # Dentro de packages/server
+  $ cd packages/server
+
+  # Criar arquivo .env.example e dentro colocar:
+
+  APP_SECRET=
+  APP_WEB_URL=http://localhost:3000
+  APP_API_URL=http://localhost:3333
+```
+
+## Add dotenv
+```bash
+  # Dentro de packages/server
+  $ cd packages/server
+  # Execute
+  $ yarn add dotenv
+```
+
+## Criar pasta services e arquivo CreateUserService.ts
+```bash
+  # Dentro de packages/server/src/modules/users
+  $ cd packages/server/src/modules/users
+  # Execute
+  $ mkdir services
+
+  # Criar arquivo CreateUserService.ts e dentro colocar:
+
+
+  import { injectable, inject } from 'tsyringe'
+
+  import ICacheProvider from '@shared/container/providers/CacheProvider/models/ICacheProvider'
+
+  import AppError from '@shared/errors/AppError'
+  import IUsersRepository from '../repositories/IUsersRepository'
+  import IHashProvider from '../providers/HashProvider/models/IHashProvider'
+
+  import User from '../infra/typeorm/entities/User'
+
+  interface IRequest {
+    name: string
+    email: string
+    password: string
+  }
+
+  @injectable()
+  class CreateUserService {
+    constructor(
+      @inject('UsersRepository')
+      private usersRepository: IUsersRepository,
+
+      @inject('HashProvider')
+      private hashProvider: IHashProvider,
+
+      @inject('CacheProvider')
+      private cacheProvider: ICacheProvider,
+    ) {}
+
+    public async execute({ name, email, password }: IRequest): Promise<User> {
+      const checkUserExists = await this.usersRepository.findByEmail(email)
+
+      if (checkUserExists) {
+        throw new AppError('O e-mail já existe na base de dados')
+      }
+
+      const hashedPassword = await this.hashProvider.generateHash(password)
+
+      const user = await this.usersRepository.create({
+        name,
+        email,
+        password: hashedPassword,
+      })
+
+      await this.cacheProvider.invalidatePrefix('providers-list')
+
+      return user
+    }
+  }
+
+  export default CreateUserService
+```
+
+## Criar arquivo IUsersRepository.ts
+```bash
+  # Dentro de packages/server/src/modules/users/repositories
+  $ cd  packages/server/src/modules/users/repositories
+
+  # Criar arquivo IUsersRepository.ts e dentro colocar
+
+
+  import User from '../infra/typeorm/entities/User'
+  import ICreateUserDTO from '../dtos/ICreateUserDTO'
+
+  export default interface IUsersRepository {
+    findById(id: string): Promise<User | undefined>
+    findByEmail(email: string): Promise<User | undefined>
+    create(data: ICreateUserDTO): Promise<User>
+    save(user: User): Promise<User>
+  }
 ```
 
 ## ...
