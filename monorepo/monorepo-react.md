@@ -1027,10 +1027,12 @@ export default SignIn
   # Caminho das pastas packages/web/src/hooks
 ```
 
-## Criar arquivo index.tsx
+## Criar arquivo index.tsx dentro da pasta hooks
 ```bash
-  # Abrir pastas packages/web/src
-  $ cd packages/web/src
+  # Abrir pastas packages/web/src/hooks
+  $ cd packages/web/src/hooks
+  # Criar o arquivo index.tsx dentro da pasta hooks
+  # Caminho das pastas até o arquivo packages/web/src/hooks/index.tsx
   
   # Abrir o arquivo index.tsx e dentro colocar:
 
