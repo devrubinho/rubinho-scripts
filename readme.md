@@ -37,3 +37,7 @@ que ninguém é obrigado a decorar. Além disso, servirá de tutorial eventualme
 
 - [Extensões](vs-code/extensions.md)
 - [JSON Settings](vs-code/json-settings.md)
+
+### Eslint
+
+- [Monorepo - Eslint](monorepo/monorepo-eslint.md)
