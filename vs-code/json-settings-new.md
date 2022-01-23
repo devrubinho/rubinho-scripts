@@ -19,6 +19,8 @@
   "window.zoomLevel": 1,
   "explorer.compactFolders": false,
   "extensions.ignoreRecommendations": true,
-  "breadcrumbs.enabled": true
+  "breadcrumbs.enabled": true,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs":"active",
 }
 ```
