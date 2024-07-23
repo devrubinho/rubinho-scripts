@@ -15,6 +15,8 @@
 - Reload
 - Git Essentials
 - Editor Config
+- HashiCorp Terraform
+- Terraform Format on Save
 
 > Instalar também a font JetBrains Mono
 
