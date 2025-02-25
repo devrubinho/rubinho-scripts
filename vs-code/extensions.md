@@ -2,26 +2,33 @@
 
 ## Importantes
 
-- Shades of purple / Bearded Theme
+- codeium
 - Color highlight
-- vscode-icons / Bearded Icons
-- Markdown Preview Enhanced
-- Live Server
-- ESLint
-- vscode-styled-components
 - DotENV
+- ESLint
+- Git Blame
+- Git lens
+- HashiCorp Terraform
+- Markdown Preview Enhanced
 - Prisma
 - Prisma - Insider
-- Reload
-- Git Essentials
-- HashiCorp Terraform
-- Terraform Format on Save
-- NX Console
 - px to rem
+- Reload
+- Tailwind CSS IntelliSense
+- Terraform Format on Save
+- vscode-styled-components
 
 > Instalar também a font JetBrains Mono
+
+## Estilos (pode mudar quando quiser)
+- vscode-icons / Bearded Icons
+- Beautiful dracula / Shades of purple / Bearded Theme
 
 ## Opcionais
 - Code Runner
 - Vs code counter
 
+## Ada
+- .Net install tool
+- C#
+- Nx console
