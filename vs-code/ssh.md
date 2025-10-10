@@ -1,5 +1,7 @@
+´´´
 sudo apt update
 sudo apt install -y git openssh-client
+´´´
 
 ssh-keygen -t ed25519 -C "rubensojunior6@gmail.com"
 
