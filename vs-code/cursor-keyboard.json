@@ -8,5 +8,10 @@
     {
         "key": "ctrl+k ctrl+u",
         "command": "editor.action.removeCommentLine"
+    },
+    {
+        "key": "ctrl+l",
+        "command": "editor.action.selectHighlights",
+        "when": "editorFocus"
     }
 ]
