@@ -101,7 +101,6 @@
     // =======================
     // GitLens
     // =======================
-    "gitlens.currentLine.enabled": false,
     "gitlens.codeLens.recentChange.enabled": false,
     "gitlens.hovers.enabled": false,
     "gitlens.codeLens.enabled": false,
