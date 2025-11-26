@@ -1,3 +1,5 @@
+# RODE -> bash <(curl -Ls https://raw.githubusercontent.com/rubensdeoliveira/rubinho-env/master/vs-code/prezto_starship_script.sh)
+
 #!/usr/bin/env zsh
 
 set -e
