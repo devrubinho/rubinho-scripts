@@ -111,42 +111,51 @@ gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'us+intl')]"
 echo "===== [KEYBOARD] Fix cedilha (ç) ====="
 gsettings set org.gnome.desktop.input-sources xkb-options "['lv3:ralt_switch']"
 
-###########################################################################
-# 6. TEMA DRÁCULA + CRIAÇÃO DE PROFILE NOVO
-###########################################################################
+###############################################################################
+# 6. TEMA DRACULA + FONTE NO TERMINAL (com criação de perfil do zero)
+###############################################################################
 
-echo "===== [DRACULA] Criando novo profile no GNOME Terminal ====="
+echo "===== [DRACULA] Configurando GNOME Terminal ====="
 
-NEW_PROFILE=$(uuidgen)
+# Gera um novo UUID para o perfil customizado
+NEW_PROFILE_ID=$(uuidgen)
 
-# Pega lista atual
-LIST=$(gsettings get org.gnome.Terminal.ProfilesList list)
+echo "Criando novo perfil: $NEW_PROFILE_ID"
 
-# Insere o novo UUID
-NEW_LIST=$(echo "$LIST" | sed "s/]$/, '$NEW_PROFILE']/")
-
-# Aplica nova lista
+# Adiciona o novo perfil na lista
+OLD_LIST=$(gsettings get org.gnome.Terminal.ProfilesList list)
+NEW_LIST=$(echo "$OLD_LIST" | sed "s/]$/, '$NEW_PROFILE_ID']/")
 gsettings set org.gnome.Terminal.ProfilesList list "$NEW_LIST"
 
-# Define como padrão
-gsettings set org.gnome.Terminal.ProfilesList default "$NEW_PROFILE"
+# Define como perfil padrão
+gsettings set org.gnome.Terminal.ProfilesList default "$NEW_PROFILE_ID"
 
-echo "Novo profile criado: $NEW_PROFILE"
+# Caminho do perfil
+PROFILE_PATH="org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$NEW_PROFILE_ID/"
 
-BASE="org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$NEW_PROFILE/"
+echo "Aplicando configurações ao perfil..."
 
-echo "===== [DRACULA] Aplicando fonte ====="
-gsettings set "$BASE" font "'JetBrainsMono Nerd Font 13'"
+# Fonte
+gsettings set "$PROFILE_PATH" font 'JetBrainsMono Nerd Font 13'
+gsettings set "$PROFILE_PATH" use-system-font false
 
-echo "===== [DRACULA] Baixando tema Dracula ====="
-TMP_DRACULA="/tmp/dracula-term"
-rm -rf "$TMP_DRACULA"
-git clone --depth=1 https://github.com/dracula/gnome-terminal.git "$TMP_DRACULA"
+# Obrigatório para aplicar Dracula
+gsettings set "$PROFILE_PATH" use-theme-colors false
 
-echo "===== [DRACULA] Aplicando tema ====="
-"$TMP_DRACULA"/install.sh --scheme Dracula --profile "$NEW_PROFILE" --force || true
+# Clona o repositório do Dracula
+TMP_DRAC="/tmp/dracula-term"
+rm -rf "$TMP_DRAC"
+git clone https://github.com/dracula/gnome-terminal.git "$TMP_DRAC"
 
-echo "===== [DRACULA] Tema aplicado no novo profile ====="
+# Instala o tema no perfil criado
+bash "$TMP_DRAC/install.sh" --scheme Dracula --profile "$NEW_PROFILE_ID" --force
+
+# Seta o background e foreground manualmente (garante o funcionamento no Zorin)
+gsettings set "$PROFILE_PATH" background-color '#282a36'
+gsettings set "$PROFILE_PATH" foreground-color '#f8f8f2'
+
+echo "===== [DRACULA] Tema aplicado com sucesso ao novo perfil ====="
+echo "Novo perfil padrão: $NEW_PROFILE_ID"
 
 ###########################################################################
 # 7. FINAL
