@@ -1,6 +1,6 @@
 # RODE -> bash <(curl -Ls https://raw.githubusercontent.com/rubensdeoliveira/rubinho-env/master/vs-code/prezto_starship_script.sh)
 
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
 set -e
 
@@ -8,11 +8,18 @@ echo "===== Instalando ZSH ====="
 sudo apt update -y
 sudo apt install -y zsh curl git
 
+ZSH_BIN=$(which zsh)
+
 echo "===== Alterando shell padrão para ZSH ====="
-CHSH_PATH=$(which zsh)
-if [ "$SHELL" != "$CHSH_PATH" ]; then
-  chsh -s "$CHSH_PATH"
+if [ "$SHELL" != "$ZSH_BIN" ]; then
+  chsh -s "$ZSH_BIN"
 fi
+
+echo "===== Criando script temporário ZSH ====="
+TMP_ZSH_SCRIPT=$(mktemp)
+
+cat > "$TMP_ZSH_SCRIPT" << 'EOF'
+set -e
 
 echo "===== Instalando Prezto ====="
 if [ ! -d "${ZDOTDIR:-$HOME}/.zprezto" ]; then
@@ -30,21 +37,30 @@ done
 echo "===== Instalando Starship ====="
 curl -sS https://starship.rs/install.sh | sh
 
-echo "===== Baixando starship.toml do GitHub ====="
+echo "===== Baixando starship.toml ====="
 mkdir -p ~/.config
 curl -Ls https://raw.githubusercontent.com/rubensdeoliveira/rubinho-env/master/vs-code/starship.toml -o ~/.config/starship.toml
 
-echo "===== Criando .zshrc personalizado ====="
-cat > ~/.zshrc << 'EOF'
+echo "===== Criando .zshrc ====="
+cat > ~/.zshrc << 'ENDZSH'
 # Prezto
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
-# Starship prompt
+# Starship
 eval "$(starship init zsh)"
+ENDZSH
+
+echo "===== FASE ZSH CONCLUÍDA ====="
 EOF
 
-echo "===== TUDO CONCLUÍDO! ====="
-echo "👉 Agora rode: source ~/.zshrc"
-echo "👉 E depois faça logout/login para ativar o ZSH como shell padrão."
+echo "===== Executando trecho ZSH ====="
+$ZSH_BIN "$TMP_ZSH_SCRIPT"
+
+echo "===== Limpando arquivo temporário ====="
+rm "$TMP_ZSH_SCRIPT"
+
+echo "===== INSTALAÇÃO COMPLETA ====="
+echo "👉 Rode: source ~/.zshrc"
+echo "👉 Faça logout/login para ativar totalmente o ZSH"
