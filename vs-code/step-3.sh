@@ -117,6 +117,65 @@ sudo localectl set-x11-keymap us "" "" "terminate:ctrl_alt_bksp,grp:alt_shift_to
 echo "===== [KEYBOARD] Fix cedilha (ç) ====="
 sudo sh -c "grep -q '^GTK_IM_MODULE=cedilla$' /etc/environment || echo 'GTK_IM_MODULE=cedilla' >> /etc/environment"
 
+############################################################
+#                     TEMA DRACULA (GNOME TERMINAL)
+############################################################
+
+echo "===== [DRACULA] Instalando tema Dracula no GNOME Terminal ====="
+
+# UUID aleatório para o novo profile
+PROFILE_ID=$(uuidgen)
+
+PROFILE_NAME="Dracula"
+
+# Caminho base
+PROFILE_BASE="/org/gnome/terminal/legacy/profiles:/:$PROFILE_ID"
+
+# Adiciona o novo profile à lista de profiles
+OLD_LIST=$(gsettings get org.gnome.terminal.legacy.profiles:list)
+if [[ "$OLD_LIST" == "@as []" ]]; then
+  gsettings set org.gnome.terminal.legacy.profiles:list "['$PROFILE_ID']"
+else
+  NEW_LIST=$(echo "$OLD_LIST" | sed "s/]/, '$PROFILE_ID']/")
+  gsettings set org.gnome.terminal.legacy.profiles:list "$NEW_LIST"
+fi
+
+# Nome do profile
+gsettings set "$PROFILE_BASE" visible-name "$PROFILE_NAME"
+
+# Cores oficiais Dracula
+gsettings set "$PROFILE_BASE" background-color "#282A36"
+gsettings set "$PROFILE_BASE" foreground-color "#F8F8F2"
+gsettings set "$PROFILE_BASE" bold-color "#FFFFFF"
+gsettings set "$PROFILE_BASE" cursor-background-color "#FF79C6"
+gsettings set "$PROFILE_BASE" cursor-foreground-color "#000000"
+gsettings set "$PROFILE_BASE" use-theme-colors false
+gsettings set "$PROFILE_BASE" use-theme-background false
+
+# Paleta oficial (16 colors)
+gsettings set "$PROFILE_BASE" palette "[
+  '#000000',
+  '#FF5555',
+  '#50FA7B',
+  '#F1FA8C',
+  '#BD93F9',
+  '#FF79C6',
+  '#8BE9FD',
+  '#BFBFBF',
+  '#4D4D4D',
+  '#FF6E67',
+  '#5AF78E',
+  '#F4F99D',
+  '#CAA9FA',
+  '#FF92D0',
+  '#9AEDFE',
+  '#E6E6E6'
+]"
+
+# Define profile Dracula como padrão
+gsettings set org.gnome.terminal.legacy.profiles: default "$PROFILE_ID"
+
+echo "===== Tema Dracula aplicado com sucesso! ====="
 
 ############################################################
 #                     FIM
