@@ -25,6 +25,7 @@ cd rubinho-env
 
 - [🐧 Linux](#-linux-installation)
 - [🍎 macOS](#-macos-installation)
+- [🧹 macOS Disk Space Manager](#-macos-disk-space-manager)
 
 ---
 
@@ -33,7 +34,7 @@ cd rubinho-env
 ### Automatic Installation (Recommended)
 
 ```bash
-cd linux/scripts
+cd linux/scripts/enviroment
 
 # Run all scripts automatically (single command)
 bash 00-install-all.sh
@@ -44,7 +45,7 @@ bash 00-install-all.sh
 ### Manual Installation
 
 ```bash
-cd linux/scripts
+cd linux/scripts/enviroment
 
 # Run in order:
 bash 01-configure-git.sh
@@ -59,12 +60,12 @@ bash 09-install-cursor.sh
 bash 10-configure-keyboard.sh
 bash 11-configure-terminal.sh
 bash 12-configure-ssh.sh
-bash 14-configure-inotify.sh
-bash 15-install-cursor-extensions.sh
-bash 16-configure-cursor.sh
-bash 17-install-docker.sh       # ⚠️ Logout/login after this
-bash 24-install-insomnia.sh
-bash 25-install-heidisql.sh
+bash 13-configure-inotify.sh
+bash 14-install-cursor-extensions.sh
+bash 15-configure-cursor.sh
+bash 16-install-docker.sh       # ⚠️ Logout/login after this
+bash 17-install-insomnia.sh
+bash 18-install-heidisql.sh
 ```
 
 ---
@@ -74,7 +75,7 @@ bash 25-install-heidisql.sh
 ### Automatic Installation (Recommended)
 
 ```bash
-cd macos/scripts
+cd macos/scripts/enviroment
 
 # Run all scripts automatically (single command)
 bash 00-install-all.sh
@@ -85,7 +86,7 @@ bash 00-install-all.sh
 ### Manual Installation
 
 ```bash
-cd macos/scripts
+cd macos/scripts/enviroment
 
 # Run in order:
 bash 01-configure-git.sh
@@ -102,9 +103,312 @@ bash 12-install-cursor-extensions.sh
 bash 13-configure-cursor.sh
 bash 14-install-docker.sh
 bash 15-configure-terminal.sh
-bash 22-install-insomnia.sh
-bash 23-install-tableplus.sh
+bash 16-install-insomnia.sh
+bash 17-install-tableplus.sh
 ```
+
+---
+
+## 🧹 macOS Disk Space Manager
+
+Professional disk space analysis and cleanup scripts for macOS. Analyze what's taking up space and safely clean development caches, temporary files, and more.
+
+![macOS](https://img.shields.io/badge/macOS-000000?style=for-the-badge&logo=apple&logoColor=white)
+
+![Bash](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white)
+
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)
+
+### 🌟 Features
+
+#### 📊 Space Analysis (`analyze_space.sh`)
+
+- **Top 100 largest folders** in your system
+
+- **Top 100 largest files** in your system
+
+- **Per-user breakdown** showing:
+
+  - Home directory size
+
+  - Downloads folder
+
+  - Caches
+
+  - Trash
+
+  - Logs
+
+  - Xcode data (if installed)
+
+  - Number of `node_modules` folders
+
+  - Number of `.next` folders
+
+- **Color-coded ranking** (top 10 in red, 11-30 in yellow, rest in blue)
+
+- **Disk space summary** with capacity, used, and available space
+
+#### 🧹 Space Cleanup (`clean_space.sh`)
+
+Aggressive but safe cleanup of:
+
+##### 🐳 Docker
+
+- All containers, images, volumes, and networks
+
+- Docker data files (`Docker.raw`)
+
+##### 📦 Node.js/JavaScript
+
+- All `node_modules` folders
+
+- All `.next` folders (Next.js builds)
+
+- NX, Yarn, and npm caches
+
+##### 🍎 Xcode
+
+- DerivedData
+
+- Old archives (>30 days)
+
+- Caches and old logs
+
+- Old DeviceSupport (>90 days)
+
+##### 🗑️ System
+
+- All user trash bins
+
+- External volume trash
+
+- Application caches (Safari, Chrome, VS Code, Spotify, Slack, etc.)
+
+- System logs (>30 days)
+
+- Temporary files
+
+- Old downloads (>90 days)
+
+##### 🛠️ Development Tools
+
+- Homebrew cache
+
+- npm cache
+
+- pip cache
+
+- NSServices cache
+
+### 📋 Requirements
+
+- **macOS** (any recent version)
+
+- **Bash** (pre-installed on macOS)
+
+- **sudo access** (for system-wide operations)
+
+### 🚀 Installation
+
+1. Navigate to the utils directory:
+
+```bash
+cd macos/scripts/utils
+```
+
+2. Make scripts executable:
+
+```bash
+chmod +x analyze_space.sh clean_space.sh
+```
+
+### 💡 Usage
+
+#### Analyze Disk Space
+
+**Without sudo** (limited to accessible areas):
+
+```bash
+./analyze_space.sh
+```
+
+**With sudo** (complete system analysis):
+
+```bash
+sudo ./analyze_space.sh
+```
+
+#### Clean Disk Space
+
+**Current user only**:
+
+```bash
+./clean_space.sh
+```
+
+**All users** (requires sudo):
+
+```bash
+sudo ./clean_space.sh
+```
+
+⚠️ **Warning**: The cleanup script will remove development files! Projects will need to reinstall dependencies (`npm install`, etc.) after cleanup.
+
+### 📸 Example Output
+
+#### Analysis Output
+
+```
+╔════════════════════════════════════════════════════════════════╗
+║         📊  DISK SPACE ANALYSIS - TOP 100 ITEMS  📊          ║
+╚════════════════════════════════════════════════════════════════╝
+
+📁 TOP 100 LARGEST FOLDERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  1. 45G     /Users/username
+  2. 12G     /Users/username/Library
+  3. 8.5G    /Users/username/Library/Developer/Xcode
+  ...
+
+👤 ANALYSIS BY USER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 username
+─────────────────────────────────────────────────────────────────
+  📁 Home total:          45G
+  📥 Downloads:           2.3G
+  💾 Caches:              1.8G
+  🗑️  Trash:              512M
+  📦 node_modules:        15 folder(s)
+  ⚡ .next:               3 folder(s)
+```
+
+#### Cleanup Output
+
+```
+╔════════════════════════════════════════════════════════════════╗
+║            🧹  DISK SPACE CLEANUP - macOS  🧹                 ║
+╚════════════════════════════════════════════════════════════════╝
+
+╔════════════════════════════════════════════════════════════════╗
+║                    👤 USER: username                          ║
+╚════════════════════════════════════════════════════════════════╝
+
+📦 Caches and Applications
+─────────────────────────────────────────────────────────────────
+  🧹 Cleaning: General Caches
+     ✓ Freed: 1,234.56 MB
+  🧹 Cleaning: Chrome
+     ✓ Freed: 567.89 MB
+  ...
+
+💻 Development Files
+─────────────────────────────────────────────────────────────────
+  📦 Removing ALL node_modules folders...
+     ✓ 15 folders removed: 2,345.67 MB freed
+  ⚡ Removing ALL .next folders...
+     ✓ 3 folders removed: 456.78 MB freed
+```
+
+### 🛡️ Safety Features
+
+- ✅ **Confirmation required** before any deletion
+
+- ✅ **Shows exactly what will be removed** before proceeding
+
+- ✅ **Per-user separation** - clearly shows what's being cleaned for each user
+
+- ✅ **macOS verification** - scripts refuse to run on non-macOS systems
+
+- ✅ **Detailed logging** of freed space
+
+- ✅ **Keeps essential system files** - only removes caches and temporary data
+
+### ⚙️ What Gets Cleaned
+
+#### 🟢 Safe to Remove (Always)
+
+- Temporary files
+
+- Application caches
+
+- Old logs (>7-30 days depending on type)
+
+- Trash contents
+
+- Build artifacts (DerivedData, .next, etc.)
+
+#### 🟡 Requires Reinstall (Development)
+
+- `node_modules` - run `npm install` to restore
+
+- `.next` - run `npm run build` to restore
+
+- NX cache - will rebuild on next run
+
+- Docker containers/images - will need to rebuild
+
+#### 🔴 Never Touches
+
+- Source code
+
+- Documents
+
+- Media files
+
+- Application binaries
+
+- System files
+
+- Recent downloads (<90 days)
+
+### 🔍 Directories Searched
+
+The scripts automatically search common development directories:
+
+- `~/dev`
+
+- `~/Desktop`
+
+- `~/Documents`
+
+- `~/projects`
+
+- `~/workspace`
+
+- `~/code`
+
+- `~` (home directory)
+
+### ⚠️ Disclaimer
+
+**Use at your own risk!** While these scripts are designed to be safe and only remove temporary/cache files, always:
+
+- ✅ **Backup important data** before running cleanup
+
+- ✅ **Review what will be removed** in the confirmation screen
+
+- ✅ **Ensure your projects are committed to git** before removing `node_modules`
+
+- ✅ **Close Docker and other applications** before cleanup for best results
+
+### 🐛 Known Issues
+
+- Some protected system directories may show "Permission denied" even with sudo (this is normal due to System Integrity Protection)
+
+- Docker cleanup requires Docker to be running
+
+- Trash emptying may fail for files in use
+
+### 📊 Typical Space Savings
+
+- **Light cleanup** (no node_modules): 1-5 GB
+
+- **Medium cleanup** (with node_modules): 5-20 GB
+
+- **Heavy cleanup** (all + Docker): 20-50+ GB
+
+*Results vary based on your development setup and usage patterns.*
 
 ---
 
@@ -113,7 +417,7 @@ bash 23-install-tableplus.sh
 ### **00-install-all.sh** (Master Script)
 Runs all installation scripts in sequence automatically.
 - Prompts for Git user name and email at the start
-- Executes scripts 01-25 (Linux) or 01-23 (macOS) in the correct order
+- Executes scripts 01-18 (Linux) or 01-17 (macOS) in the correct order
 - Automatically loads NVM and environment configurations during installation
 - Handles all setup phases: Initial Setup, Environment Configuration, Development Tools, and Application Setup
 - **Note:** After completion, close and reopen your terminal to ensure all configurations are applied
@@ -161,18 +465,7 @@ Installs and configures the Starship prompt.
 
 ---
 
-### **05-install-docker.sh**
-Installs Docker and Docker Compose.
-- Removes old Docker installations
-- Adds official Docker repository
-- Installs Docker Engine, Docker Compose and plugins
-- Adds user to docker group
-
-**⚠️ After running:** Logout/login to use Docker without sudo.
-
----
-
-### **06-install-node-nvm.sh**
+### **05-install-node-nvm.sh**
 Installs NVM (Node Version Manager) and Node.js.
 - Installs NVM
 - Installs Node.js version 22
@@ -180,10 +473,15 @@ Installs NVM (Node Version Manager) and Node.js.
 
 ---
 
-### **07-install-yarn.sh**
+### **06-install-yarn.sh**
 Installs Yarn via Corepack.
 - Enables Corepack
 - Installs and activates Yarn 1
+
+---
+
+### **07-install-tools.sh**
+Installs various development tools and utilities.
 
 ---
 
@@ -297,17 +595,37 @@ Applies Cursor configurations.
 
 ---
 
-### **24-install-insomnia.sh** (Linux only)
+### **16-install-docker.sh** (Linux only)
+Installs Docker and Docker Compose.
+- Removes old Docker installations
+- Adds official Docker repository
+- Installs Docker Engine, Docker Compose and plugins
+- Adds user to docker group
+
+**⚠️ After running:** Logout/login to use Docker without sudo.
+
+---
+
+### **14-install-docker.sh** (macOS only)
+Installs Docker Desktop for macOS.
+- Installs via Homebrew Cask
+- Configures Docker Desktop
+
+**⚠️ After running:** Make sure Docker Desktop is running.
+
+---
+
+### **17-install-insomnia.sh** (Linux only)
 Installs Insomnia REST Client for Linux.
 - Adds Insomnia repository
 - Installs via apt
 - Useful for API testing and development
 
-**👉 After running:** Run `25-install-heidisql.sh` to install database tool.
+**👉 After running:** Run `18-install-heidisql.sh` to install database tool.
 
 ---
 
-### **25-install-heidisql.sh** (Linux only)
+### **18-install-heidisql.sh** (Linux only)
 Installs HeidiSQL for Linux.
 - Official HeidiSQL Linux version (64-bit .deb package)
 - Supports MySQL, MariaDB, PostgreSQL, SQLite, and more
@@ -318,16 +636,16 @@ Installs HeidiSQL for Linux.
 
 ---
 
-### **22-install-insomnia.sh** (macOS only)
+### **16-install-insomnia.sh** (macOS only)
 Installs Insomnia REST Client for macOS.
 - Installs via Homebrew Cask
 - Useful for API testing and development
 
-**👉 After running:** Run `23-install-tableplus.sh` to install database tool.
+**👉 After running:** Run `17-install-tableplus.sh` to install database tool.
 
 ---
 
-### **23-install-tableplus.sh** (macOS only)
+### **17-install-tableplus.sh** (macOS only)
 Installs TablePlus for macOS (alternative to HeidiSQL).
 - Modern, native macOS database client
 - Supports MySQL, PostgreSQL, SQLite, Redis, and many more
@@ -348,10 +666,16 @@ rubinho-env/
 │   │   ├── user-settings.json  # Cursor settings
 │   │   ├── cursor-keyboard.json  # Cursor keyboard shortcuts
 │   │   └── zsh-config      # Additional Zsh configurations
-│   └── scripts/             # Installation scripts (01-25)
+│   └── scripts/             # Scripts directory
+│       ├── enviroment/      # Environment setup scripts (01-18)
+│       └── utils/           # Utility scripts
 ├── macos/
 │   ├── config/              # Same configurations as Linux
-│   └── scripts/             # Installation scripts (01-23)
+│   └── scripts/             # Scripts directory
+│       ├── enviroment/      # Environment setup scripts (01-17)
+│       └── utils/           # Utility scripts
+│           ├── analyze_space.sh # Disk space analysis tool
+│           └── clean_space.sh   # Disk space cleanup tool
 └── readme.md               # This file
 ```
 
@@ -371,8 +695,8 @@ To modify scripts, update tools or version environment adjustments, just edit th
 
 ### Required Restarts
 1. **After script 02:** Close and reopen the terminal
-2. **After script 05 (Linux):** Logout/login to use Docker without sudo
-3. **After script 05 (macOS):** Make sure Docker Desktop is running
+2. **After script 16 (Linux):** Logout/login to use Docker without sudo
+3. **After script 14 (macOS):** Make sure Docker Desktop is running
 
 ### Dependencies
 - Scripts must be run in numerical order (01 → 02 → 03 → ...)
