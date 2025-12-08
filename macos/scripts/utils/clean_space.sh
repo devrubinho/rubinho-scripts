@@ -5,6 +5,8 @@
 # Usage: 
 #   ./clean_space.sh          - Cleans only current user
 #   sudo ./clean_space.sh     - Cleans all users
+#   ./clean_space.sh --dry-run - Preview what will be cleaned without deleting
+#   ./clean_space.sh --log    - Save cleanup log to file
 
 # ────────────────────────────────
 # System Check
@@ -19,6 +21,48 @@ fi
 # Don't use set -e to allow controlled failures
 
 # ────────────────────────────────
+# Command Line Arguments
+# ────────────────────────────────
+
+DRY_RUN=false
+SAVE_LOG=false
+LOG_FILE=""
+
+for arg in "$@"; do
+    case $arg in
+        --dry-run|-d)
+            DRY_RUN=true
+            shift
+            ;;
+        --log|-l)
+            SAVE_LOG=true
+            LOG_FILE="${HOME}/cleanup-$(date +%Y%m%d-%H%M%S).log"
+            shift
+            ;;
+        --log-file=*)
+            SAVE_LOG=true
+            LOG_FILE="${arg#*=}"
+            shift
+            ;;
+        *)
+            # Unknown argument, ignore
+            ;;
+    esac
+done
+
+# ────────────────────────────────
+# Logging Function
+# ────────────────────────────────
+
+log_message() {
+    local message="$1"
+    echo "$message"
+    if [ "$SAVE_LOG" = "true" ] && [ -n "$LOG_FILE" ]; then
+        echo "$(date '+%Y-%m-%d %H:%M:%S') - $message" >> "$LOG_FILE" 2>/dev/null || true
+    fi
+}
+
+# ────────────────────────────────
 # User Detection
 # ────────────────────────────────
 
@@ -28,12 +72,30 @@ ORIGINAL_HOME=$(eval echo ~$ORIGINAL_USER)
 
 if [ "$EUID" -eq 0 ]; then
     SUDO_MODE=true
-    echo "⚠️  Running with administrator privileges"
-    echo "    Cleaning ALL users"
+    log_message "⚠️  Running with administrator privileges"
+    log_message "    Cleaning ALL users"
 else
     SUDO_MODE=false
     ORIGINAL_USER=$USER
     ORIGINAL_HOME=$HOME
+fi
+
+# Show dry-run mode if enabled
+if [ "$DRY_RUN" = "true" ]; then
+    log_message ""
+    log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    log_message "🔍 DRY-RUN MODE ENABLED"
+    log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    log_message ""
+    log_message "No files will be deleted. This is a preview only."
+    log_message ""
+fi
+
+# Show log file location if enabled
+if [ "$SAVE_LOG" = "true" ] && [ -n "$LOG_FILE" ]; then
+    log_message ""
+    log_message "📝 Cleanup log will be saved to: $LOG_FILE"
+    log_message ""
 fi
 
 # ────────────────────────────────
@@ -96,18 +158,31 @@ preview_and_confirm() {
         echo ""
     fi
     
-    echo -e "${BOLD}${YELLOW}⚠️  This will permanently delete the items listed above.${NC}"
-    echo ""
-    read -p "Continue with this category? [y/N]: " -n 1 -r
-    echo ""
-    
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo -e "${YELLOW}  ⏭️  Skipping $category_name...${NC}"
-        return 1
+    if [ "$DRY_RUN" = "true" ]; then
+        echo -e "${BOLD}${CYAN}🔍 DRY-RUN: No files will be deleted${NC}"
+        echo ""
+        read -p "Show next category? [Y/n]: " -n 1 -r
+        echo ""
+        if [[ $REPLY =~ ^[Nn]$ ]]; then
+            return 1
+        fi
+        return 0
+    else
+        echo -e "${BOLD}${YELLOW}⚠️  This will permanently delete the items listed above.${NC}"
+        echo ""
+        read -p "Continue with this category? [y/N]: " -n 1 -r
+        echo ""
+        
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo -e "${YELLOW}  ⏭️  Skipping $category_name...${NC}"
+            log_message "Skipped category: $category_name"
+            return 1
+        fi
+        
+        echo -e "${GREEN}  ✓ Proceeding with $category_name cleanup...${NC}"
+        log_message "Proceeding with cleanup: $category_name"
+        return 0
     fi
-    
-    echo -e "${GREEN}  ✓ Proceeding with $category_name cleanup...${NC}"
-    return 0
 }
 
 # ────────────────────────────────
@@ -172,11 +247,17 @@ clean_dir() {
                 fi
             fi
             
-            echo -e "${BLUE}  🧹 Cleaning: ${BOLD}$name${NC}"
-            if [ "$use_sudo" = "true" ]; then
-                sudo rm -rf "$dir"/* 2>/dev/null || true
+            if [ "$DRY_RUN" = "true" ]; then
+                echo -e "${CYAN}  🔍 [DRY-RUN] Would clean: ${BOLD}$name${NC}"
+                log_message "[DRY-RUN] Would clean: $name ($size_display, $item_count items)"
             else
-                rm -rf "$dir"/* 2>/dev/null || true
+                echo -e "${BLUE}  🧹 Cleaning: ${BOLD}$name${NC}"
+                log_message "Cleaning: $name"
+                if [ "$use_sudo" = "true" ]; then
+                    sudo rm -rf "$dir"/* 2>/dev/null || true
+                else
+                    rm -rf "$dir"/* 2>/dev/null || true
+                fi
             fi
             
             local size_after
@@ -370,7 +451,12 @@ clean_dev_artifacts() {
                         pattern_size=$((pattern_size + size_kb))
                         echo -e "${CYAN}     Removing: $path${NC}"
                         # Remove immediately
-                        sudo rm -rf "$path" 2>/dev/null || echo -e "${RED}     Failed to remove: $path${NC}"
+                        if [ "$DRY_RUN" = "true" ]; then
+                            log_message "[DRY-RUN] Would remove: $path"
+                        else
+                            log_message "Removing: $path"
+                            sudo rm -rf "$path" 2>/dev/null || echo -e "${RED}     Failed to remove: $path${NC}"
+                        fi
                     fi
                 fi
             done < <(sudo find "$user_home" -type d -name "$pattern" 2>/dev/null)
@@ -384,7 +470,12 @@ clean_dev_artifacts() {
                         pattern_size=$((pattern_size + size_kb))
                         echo -e "${CYAN}     Removing: $path${NC}"
                         # Remove immediately
-                        rm -rf "$path" 2>/dev/null || echo -e "${RED}     Failed to remove: $path${NC}"
+                        if [ "$DRY_RUN" = "true" ]; then
+                            log_message "[DRY-RUN] Would remove: $path"
+                        else
+                            log_message "Removing: $path"
+                            rm -rf "$path" 2>/dev/null || echo -e "${RED}     Failed to remove: $path${NC}"
+                        fi
                     fi
                 fi
             done < <(find "$user_home" -type d -name "$pattern" 2>/dev/null)
@@ -414,4 +505,83 @@ clean_dev_artifacts() {
         ".coverage"
         "coverage.xml"
         "nosetests.xml"
+    )
+    
+    for pattern in "${file_patterns[@]}"; do
+        local file_count=0
+        if [ "$use_sudo" = "true" ]; then
+            if [ "$DRY_RUN" = "true" ]; then
+                file_count=$(sudo find "$user_home" -type f -name "$pattern" ! -name ".env" ! -name ".env.*" 2>/dev/null | wc -l | tr -d ' ')
+                log_message "[DRY-RUN] Would remove $file_count '$pattern' file(s)"
+            else
+                file_count=$(sudo find "$user_home" -type f -name "$pattern" ! -name ".env" ! -name ".env.*" -delete -print 2>/dev/null | wc -l | tr -d ' ')
+                if [ "$file_count" -gt 0 ]; then
+                    log_message "Removed $file_count '$pattern' file(s)"
+                fi
+            fi
+        else
+            if [ "$DRY_RUN" = "true" ]; then
+                file_count=$(find "$user_home" -type f -name "$pattern" ! -name ".env" ! -name ".env.*" 2>/dev/null | wc -l | tr -d ' ')
+                log_message "[DRY-RUN] Would remove $file_count '$pattern' file(s)"
+            else
+                file_count=$(find "$user_home" -type f -name "$pattern" ! -name ".env" ! -name ".env.*" -delete -print 2>/dev/null | wc -l | tr -d ' ')
+                if [ "$file_count" -gt 0 ]; then
+                    log_message "Removed $file_count '$pattern' file(s)"
+                fi
+            fi
+        fi
         
+        if [ "$file_count" -gt 0 ] && [ "$DRY_RUN" = "false" ]; then
+            total_items=$((total_items + file_count))
+            echo -e "${GREEN}     ✓ Removed $file_count '$pattern' file(s)${NC}"
+        fi
+    done
+    
+    echo ""
+    echo -e "${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    if [ $total_items -gt 0 ]; then
+        local freed_mb=$((total_freed / 1024))
+        local freed_gb=$((freed_mb / 1024))
+        if [ $freed_gb -gt 0 ]; then
+            local freed_gb_decimal=$(((freed_mb % 1024) * 10 / 1024))
+            echo -e "${GREEN}${BOLD}     ✅ TOTAL: $total_items items removed - ${freed_gb}.${freed_gb_decimal} GB freed${NC}"
+            log_message "TOTAL: $total_items items removed - ${freed_gb}.${freed_gb_decimal} GB freed"
+        else
+            local freed_kb=$(((total_freed % 1024) * 100 / 1024))
+            echo -e "${GREEN}${BOLD}     ✅ TOTAL: $total_items items removed - ${freed_mb}.${freed_kb} MB freed${NC}"
+            log_message "TOTAL: $total_items items removed - ${freed_mb}.${freed_kb} MB freed"
+        fi
+    else
+        echo -e "${YELLOW}     • No development artifacts found${NC}"
+        log_message "No development artifacts found"
+    fi
+    echo -e "${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+}
+
+# ────────────────────────────────
+# Main Cleanup Process
+# ────────────────────────────────
+
+# Clean current user
+clean_dev_artifacts "$ORIGINAL_HOME" "$ORIGINAL_USER" false
+
+# ────────────────────────────────
+# Completion Summary
+# ────────────────────────────────
+
+echo ""
+if [ "$DRY_RUN" = "true" ]; then
+    echo -e "${BOLD}${CYAN}🔍 Dry-run completed. No files were deleted.${NC}"
+    log_message "Dry-run completed. No files were deleted."
+else
+    echo -e "${BOLD}${GREEN}🎉 All clean! Your macOS system is lighter now.${NC}"
+    log_message "Cleanup completed successfully."
+fi
+
+if [ "$SAVE_LOG" = "true" ] && [ -n "$LOG_FILE" ]; then
+    echo ""
+    echo -e "${BOLD}${CYAN}📝 Cleanup log saved to: ${LOG_FILE}${NC}"
+    log_message "Log file location: $LOG_FILE"
+fi
+
+echo ""

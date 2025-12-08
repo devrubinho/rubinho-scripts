@@ -184,13 +184,16 @@ setup_environment_variables() {
                     value="${value%\"}"
                     value="${value#\'}"
                     value="${value%\'}"
+                    # Remove leading/trailing whitespace
+                    value="${value#"${value%%[![:space:]]*}"}"
+                    value="${value%"${value##*[![:space:]]}"}"
                     break
                 fi
             done < "$env_file"
         fi
         
-        # If not found, prompt user
-        if [ -z "$value" ] || [ "$value" = "" ]; then
+        # If not found or empty (after removing quotes and spaces), prompt user
+        if [ -z "${value// }" ] || [ -z "$value" ]; then
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             echo "📝 Missing Required Variable: $var_name"
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -253,44 +256,76 @@ setup_environment_variables() {
                 IFS=':' read -r var_name prompt_text is_required <<< "$var_info"
                 
                 # Check if variable exists in .env
-                local value
+                local value=""
                 if [ -f "$env_file" ]; then
+                    # Try to read from .env
                     while IFS= read -r line || [ -n "$line" ]; do
+                        # Skip comments and empty lines
                         [[ "$line" =~ ^[[:space:]]*# ]] && continue
                         [[ -z "${line// }" ]] && continue
                         
+                        # Check if this line matches our variable
                         if [[ "$line" =~ ^[[:space:]]*${var_name}[[:space:]]*=[[:space:]]*(.+)$ ]]; then
                             value="${BASH_REMATCH[1]}"
+                            # Remove quotes if present
                             value="${value#\"}"
                             value="${value%\"}"
                             value="${value#\'}"
                             value="${value%\'}"
+                            # Remove leading/trailing whitespace
+                            value="${value#"${value%%[![:space:]]*}"}"
+                            value="${value%"${value##*[![:space:]]}"}"
                             break
                         fi
                     done < "$env_file"
                 fi
                 
-                if [ -z "$value" ] || [ "$value" = "" ]; then
+                # If not found or empty, prompt user
+                if [ -z "${value// }" ] || [ -z "$value" ]; then
                     echo ""
                     echo "$prompt_text"
                     read -p "Enter value for $var_name (or press Enter to skip): " user_input
                     
                     if [ -n "$user_input" ]; then
+                        # Remove empty value if exists
                         if grep -q "^[[:space:]]*${var_name}[[:space:]]*=" "$env_file" 2>/dev/null; then
                             if [[ "$OSTYPE" == "darwin"* ]]; then
-                                sed -i '' "s|^[[:space:]]*${var_name}[[:space:]]*=.*|${var_name}=\"${user_input}\"|" "$env_file"
+                                sed -i '' "/^[[:space:]]*${var_name}[[:space:]]*=/d" "$env_file"
                             else
-                                sed -i "s|^[[:space:]]*${var_name}[[:space:]]*=.*|${var_name}=\"${user_input}\"|" "$env_file"
+                                sed -i "/^[[:space:]]*${var_name}[[:space:]]*=/d" "$env_file"
                             fi
-                        else
-                            echo "${var_name}=\"${user_input}\"" >> "$env_file"
                         fi
+                        echo "${var_name}=\"${user_input}\"" >> "$env_file"
                         echo "✓ Saved $var_name to .env file"
                     else
                         echo "⏭️  Skipped $var_name"
                     fi
                 else
-                    echo "✓ Found $var_name in .env file (using existing value)"
+                    # Verify value is not empty after trimming
+                    local trimmed_value="${value#"${value%%[![:space:]]*}"}"
+                    trimmed_value="${trimmed_value%"${trimmed_value##*[![:space:]]}"}"
+                    if [ -z "$trimmed_value" ] || [ -z "${trimmed_value// }" ]; then
+                        # Value exists but is empty, treat as missing
+                        echo "⚠️  Found $var_name in .env but value is empty. Will prompt for input."
+                        # Remove the empty value line
+                        if [[ "$OSTYPE" == "darwin"* ]]; then
+                            sed -i '' "/^[[:space:]]*${var_name}[[:space:]]*=/d" "$env_file"
+                        else
+                            sed -i "/^[[:space:]]*${var_name}[[:space:]]*=/d" "$env_file"
+                        fi
+                        # Prompt for input
+                        echo ""
+                        echo "$prompt_text"
+                        read -p "Enter value for $var_name (or press Enter to skip): " user_input
+                        if [ -n "$user_input" ]; then
+                            echo "${var_name}=\"${user_input}\"" >> "$env_file"
+                            echo "✓ Saved $var_name to .env file"
+                        else
+                            echo "⏭️  Skipped $var_name"
+                        fi
+                    else
+                        echo "✓ Found $var_name in .env file (using existing value)"
+                    fi
                 fi
             done
         else
@@ -416,7 +451,7 @@ analyze_disk() {
 
     # Execute analysis script
     if bash "$analyze_script"; then
-        log_info "Disk analysis completed"
+    log_info "Disk analysis completed"
     else
         echo ""
         echo "❌ Disk analysis failed. Check the logs for details."

@@ -5,6 +5,8 @@
 # Usage: 
 #   ./clean_space.sh          - Cleans only current user
 #   sudo ./clean_space.sh     - Cleans all users
+#   ./clean_space.sh --dry-run - Preview what will be cleaned without deleting
+#   ./clean_space.sh --log    - Save cleanup log to file
 
 # ────────────────────────────────
 # System Check
@@ -19,6 +21,48 @@ fi
 # Don't use set -e to allow controlled failures
 
 # ────────────────────────────────
+# Command Line Arguments
+# ────────────────────────────────
+
+DRY_RUN=false
+SAVE_LOG=false
+LOG_FILE=""
+
+for arg in "$@"; do
+    case $arg in
+        --dry-run|-d)
+            DRY_RUN=true
+            shift
+            ;;
+        --log|-l)
+            SAVE_LOG=true
+            LOG_FILE="${HOME}/cleanup-$(date +%Y%m%d-%H%M%S).log"
+            shift
+            ;;
+        --log-file=*)
+            SAVE_LOG=true
+            LOG_FILE="${arg#*=}"
+            shift
+            ;;
+        *)
+            # Unknown argument, ignore
+            ;;
+    esac
+done
+
+# ────────────────────────────────
+# Logging Function
+# ────────────────────────────────
+
+log_message() {
+    local message="$1"
+    echo "$message"
+    if [ "$SAVE_LOG" = "true" ] && [ -n "$LOG_FILE" ]; then
+        echo "$(date '+%Y-%m-%d %H:%M:%S') - $message" >> "$LOG_FILE" 2>/dev/null || true
+    fi
+}
+
+# ────────────────────────────────
 # User Detection
 # ────────────────────────────────
 
@@ -28,12 +72,30 @@ ORIGINAL_HOME=$(eval echo ~$ORIGINAL_USER)
 
 if [ "$EUID" -eq 0 ]; then
     SUDO_MODE=true
-    echo "⚠️  Running with administrator privileges"
-    echo "    Cleaning ALL users"
+    log_message "⚠️  Running with administrator privileges"
+    log_message "    Cleaning ALL users"
 else
     SUDO_MODE=false
     ORIGINAL_USER=$USER
     ORIGINAL_HOME=$HOME
+fi
+
+# Show dry-run mode if enabled
+if [ "$DRY_RUN" = "true" ]; then
+    log_message ""
+    log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    log_message "🔍 DRY-RUN MODE ENABLED"
+    log_message "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    log_message ""
+    log_message "No files will be deleted. This is a preview only."
+    log_message ""
+fi
+
+# Show log file location if enabled
+if [ "$SAVE_LOG" = "true" ] && [ -n "$LOG_FILE" ]; then
+    log_message ""
+    log_message "📝 Cleanup log will be saved to: $LOG_FILE"
+    log_message ""
 fi
 
 # ────────────────────────────────
@@ -98,18 +160,31 @@ preview_and_confirm() {
         echo ""
     fi
     
-    echo -e "${BOLD}${YELLOW}⚠️  This will permanently delete the items listed above.${NC}"
-    echo ""
-    read -p "Continue with this category? [y/N]: " -n 1 -r
-    echo ""
-    
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo -e "${YELLOW}  ⏭️  Skipping $category_name...${NC}"
-        return 1
+    if [ "$DRY_RUN" = "true" ]; then
+        echo -e "${BOLD}${CYAN}🔍 DRY-RUN: No files will be deleted${NC}"
+        echo ""
+        read -p "Show next category? [Y/n]: " -n 1 -r
+        echo ""
+        if [[ $REPLY =~ ^[Nn]$ ]]; then
+            return 1
+        fi
+        return 0
+    else
+        echo -e "${BOLD}${YELLOW}⚠️  This will permanently delete the items listed above.${NC}"
+        echo ""
+        read -p "Continue with this category? [y/N]: " -n 1 -r
+        echo ""
+        
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo -e "${YELLOW}  ⏭️  Skipping $category_name...${NC}"
+            log_message "Skipped category: $category_name"
+            return 1
+        fi
+        
+        echo -e "${GREEN}  ✓ Proceeding with $category_name cleanup...${NC}"
+        log_message "Proceeding with cleanup: $category_name"
+        return 0
     fi
-    
-    echo -e "${GREEN}  ✓ Proceeding with $category_name cleanup...${NC}"
-    return 0
 }
 
 # ────────────────────────────────
@@ -174,11 +249,17 @@ clean_dir() {
                 fi
             fi
             
-            echo -e "${BLUE}  🧹 Cleaning: ${BOLD}$name${NC}"
-            if [ "$use_sudo" = "true" ]; then
-                sudo rm -rf "$dir"/* 2>/dev/null || true
+            if [ "$DRY_RUN" = "true" ]; then
+                echo -e "${CYAN}  🔍 [DRY-RUN] Would clean: ${BOLD}$name${NC}"
+                log_message "[DRY-RUN] Would clean: $name ($size_display, $item_count items)"
             else
-                rm -rf "$dir"/* 2>/dev/null || true
+                echo -e "${BLUE}  🧹 Cleaning: ${BOLD}$name${NC}"
+                log_message "Cleaning: $name"
+                if [ "$use_sudo" = "true" ]; then
+                    sudo rm -rf "$dir"/* 2>/dev/null || true
+                else
+                    rm -rf "$dir"/* 2>/dev/null || true
+                fi
             fi
             
             local size_after
@@ -882,6 +963,19 @@ echo ""
 df -h / | tail -1 | awk '{print "   📊 Used space: " $3 " of " $2 " (" $5 ")"}'
 df -h / | tail -1 | awk '{print "   ✨ Free space: " $4}'
 echo ""
-echo -e "${BOLD}${GREEN}🎉 All clean! Your Linux system is lighter now.${NC}"
+if [ "$DRY_RUN" = "true" ]; then
+    echo -e "${BOLD}${CYAN}🔍 Dry-run completed. No files were deleted.${NC}"
+    log_message "Dry-run completed. No files were deleted."
+else
+    echo -e "${BOLD}${GREEN}🎉 All clean! Your Linux system is lighter now.${NC}"
+    log_message "Cleanup completed successfully."
+fi
+
+if [ "$SAVE_LOG" = "true" ] && [ -n "$LOG_FILE" ]; then
+    echo ""
+    echo -e "${BOLD}${CYAN}📝 Cleanup log saved to: ${LOG_FILE}${NC}"
+    log_message "Log file location: $LOG_FILE"
+fi
+
 echo ""
 
