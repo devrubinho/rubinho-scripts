@@ -298,6 +298,77 @@ cleanup_files() {
     fi
 }
 
+fix_linux_user() {
+    # Only available on Linux
+    if ! is_linux; then
+        echo "❌ Error: This option is only available on Linux systems."
+        log_error "fix_linux_user called on non-Linux system"
+        return 1
+    fi
+
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "🛠️  Fix Linux User Login Issues"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "This tool helps diagnose and fix user login problems on Linux."
+    echo ""
+    echo "Common issues this fixes:"
+    echo "  • User cannot log in (wrong shell, missing home directory, etc.)"
+    echo "  • Permission problems with user directories"
+    echo "  • Corrupted user configuration"
+    echo ""
+    echo "⚠️  WARNING:"
+    echo "   - This script requires sudo/root privileges"
+    echo "   - It will modify system user configurations"
+    echo "   - Make sure you understand what you're doing"
+    echo ""
+
+    # Determine script path
+    local fix_script="$SCRIPT_DIR/linux/scripts/utils/fix_user.sh"
+
+    # Validate script exists
+    if [ ! -f "$fix_script" ]; then
+        echo "❌ Error: Fix user script not found at: $fix_script"
+        log_error "Fix user script not found: $fix_script"
+        return 1
+    fi
+
+    # Make script executable
+    chmod +x "$fix_script" 2>/dev/null || true
+
+    if [ "$FORCE_MODE" = false ]; then
+        echo "The script will:"
+        echo "  1. List all system users"
+        echo "  2. Allow you to select a user to fix"
+        echo "  3. Diagnose and fix login issues for that user"
+        echo ""
+        read -p "Continue? [y/N]: " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "Operation cancelled."
+            log_info "User cancelled fix_linux_user"
+            return 0
+        fi
+    fi
+
+    echo ""
+    echo "🛠️  Starting user fix tool..."
+    echo ""
+    log_info "Starting fix_linux_user: $fix_script"
+
+    # Execute fix script with sudo
+    if sudo bash "$fix_script"; then
+        echo ""
+        echo "✅ User fix completed successfully!"
+        log_info "User fix completed successfully"
+    else
+        echo ""
+        echo "❌ User fix failed. Check the logs for details."
+        log_error "User fix failed"
+        return 1
+    fi
+}
+
 # ────────────────────────────────────────────────────────────────
 # Main Menu
 # ────────────────────────────────────────────────────────────────
@@ -311,12 +382,24 @@ main_menu() {
         echo "  1) 📦 Install development tools"
         echo "  2) 📊 Analyze disk space"
         echo "  3) 🧹 Clean up unnecessary files"
+        
+        # Show Linux-specific option only on Linux
+        if is_linux; then
+            echo "  4) 🛠️  Fix Linux user login issues"
+        fi
+        
         echo ""
         echo "  0) ❌ Exit"
         echo ""
 
+        # Determine max choice based on platform
+        local max_choice=3
+        if is_linux; then
+            max_choice=4
+        fi
+
         # Read user choice
-        read -p "Enter your choice [0-3]: " choice
+        read -p "Enter your choice [0-$max_choice]: " choice
         echo ""
 
         case $choice in
@@ -329,6 +412,15 @@ main_menu() {
             3)
                 cleanup_files
                 ;;
+            4)
+                if is_linux; then
+                    fix_linux_user
+                else
+                    echo "❌ Invalid choice. Please enter a number between 0 and 3."
+                    log_warning "Invalid menu choice: $choice"
+                    echo ""
+                fi
+                ;;
             0)
                 echo "Goodbye!"
                 log_info "User selected exit"
@@ -337,7 +429,7 @@ main_menu() {
                 exit 0
                 ;;
             *)
-                echo "❌ Invalid choice. Please enter a number between 0 and 3."
+                echo "❌ Invalid choice. Please enter a number between 0 and $max_choice."
                 log_warning "Invalid menu choice: $choice"
                 echo ""
                 ;;
