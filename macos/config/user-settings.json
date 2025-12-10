@@ -462,17 +462,7 @@
   "explorer.confirmDelete": true,
   "explorer.confirmDragAndDrop": true,
   "explorer.compactFolders": false,
-  "explorer.fileNesting.enabled": true,
-  "explorer.fileNesting.patterns": {
-    "*.ts": "${capture}.js",
-    "*.tsx": "${capture}.jsx",
-    "tsconfig.json": "tsconfig.*.json",
-    "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml",
-    "schema.prisma": "*.env, .env.*",
-    "*.go": "${capture}_test.go",
-    "*.rb": "${capture}_spec.rb, ${capture}_test.rb",
-    "*.tf": "${capture}.tfvars, ${capture}.tfstate, ${capture}.tfstate.backup"
-  },
+  "explorer.fileNesting.enabled": false,
 
   // ────────────────────────────────
   // Catppuccin Theme Settings
