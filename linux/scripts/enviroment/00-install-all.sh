@@ -315,8 +315,8 @@ run_script_with_check "15-install-docker.sh" "Docker" "command -v docker" "docke
 # Insomnia check
 run_script_with_check "16-install-insomnia.sh" "Insomnia" "command -v insomnia" "insomnia --version 2>&1 | head -1"
 
-# HeidiSQL check (Linux only)
-run_script_with_check "17-install-heidisql.sh" "HeidiSQL" "command -v heidisql" "heidisql --version 2>&1 | head -1"
+# TablePlus check (Linux only)
+run_script_with_check "17-install-tableplus.sh" "TablePlus" "command -v tableplus || [ -f $HOME/.local/bin/tableplus ]" "tableplus --version 2>&1 | head -1 || echo 'TablePlus AppImage'"
 
 echo ""
 echo "=============================================="

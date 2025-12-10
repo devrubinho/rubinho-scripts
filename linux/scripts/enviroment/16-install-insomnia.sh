@@ -73,4 +73,4 @@ fi
 echo "=============================================="
 echo "============== [16] DONE ===================="
 echo "=============================================="
-echo "▶ Next, run: bash 17-install-heidisql.sh"
+echo "▶ Next, run: bash 17-install-tableplus.sh"

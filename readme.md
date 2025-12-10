@@ -102,7 +102,7 @@ bash 13-install-task-master.sh
 bash 14-configure-cursor.sh
 bash 15-install-docker.sh       # ⚠️ Logout/login after this
 bash 16-install-insomnia.sh
-bash 17-install-heidisql.sh
+bash 17-install-tableplus.sh
 ```
 
 ### Work Environment (Optional)
@@ -784,24 +784,24 @@ Installs Insomnia REST Client.
 ---
 
 ### **16-install-tableplus.sh** (macOS only)
-Installs TablePlus for macOS (alternative to HeidiSQL).
+Installs TablePlus for macOS.
 - Modern, native macOS database client
 - Supports MySQL, PostgreSQL, SQLite, Redis, and many more
 - Installs via Homebrew Cask
-- Beautiful interface with similar functionality to HeidiSQL
+- Beautiful interface with cross-platform support
 
-**📝 Note:** TablePlus is a native macOS app that provides excellent database management capabilities, similar to HeidiSQL.
+**📝 Note:** TablePlus is a native macOS app that provides excellent database management capabilities with a modern, intuitive interface.
 
 ---
 
-### **17-install-heidisql.sh** (Linux only)
-Installs HeidiSQL for Linux.
-- Official HeidiSQL Linux version (64-bit .deb package)
-- Supports MySQL, MariaDB, PostgreSQL, SQLite, and more
-- Manual download required from https://www.heidisql.com/download.php
-- Guides user through download and installation process
+### **17-install-tableplus.sh** (Linux only)
+Installs TablePlus for Linux.
+- Modern database client with beautiful interface
+- Supports MySQL, MariaDB, PostgreSQL, SQLite, Redis, and many more
+- Installs via AppImage (x86_64)
+- Automatically downloads and configures TablePlus
 
-**📝 Note:** HeidiSQL has an official Linux version available as .deb package. The script will guide you to download and install it.
+**📝 Note:** TablePlus is a modern, cross-platform database client that provides excellent database management capabilities. The Linux version is available as an AppImage.
 
 ---
 
