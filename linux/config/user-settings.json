@@ -63,18 +63,6 @@
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
   "files.trimFinalNewlines": true,
-  "files.exclude": {
-    "**/.git": true,
-    "**/.DS_Store": true,
-    "**/node_modules": true,
-    "**/.next": true,
-    "**/dist": true,
-    "**/build": true,
-    "**/.turbo": true,
-    "**/coverage": true,
-    "**/.cache": true,
-    "**/.taskmaster": false
-  },
   "files.watcherExclude": {
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true,
@@ -85,17 +73,6 @@
     "**/.turbo/**": true,
     "**/yarn.lock": true,
     "**/package-lock.json": true
-  },
-  "files.associations": {
-    "*.css": "tailwindcss",
-    "*.prisma": "prisma",
-    "*.tf": "terraform",
-    "*.tfvars": "terraform",
-    "*.hcl": "terraform",
-    "*.rb": "ruby",
-    "*.go": "go",
-    "*.mod": "go",
-    "*.sum": "go"
   },
 
   // ────────────────────────────────
@@ -108,11 +85,6 @@
   "typescript.preferences.quoteStyle": "single",
   "typescript.suggest.autoImports": true,
   "typescript.suggest.paths": true,
-  "typescript.inlayHints.parameterNames.enabled": "all",
-  "typescript.inlayHints.variableTypes.enabled": true,
-  "typescript.inlayHints.propertyDeclarationTypes.enabled": true,
-  "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
-  "typescript.inlayHints.enumMemberValues.enabled": true,
 
   // ────────────────────────────────
   // JavaScript Settings
@@ -121,10 +93,6 @@
   "javascript.preferences.quoteStyle": "single",
   "javascript.suggest.autoImports": true,
   "javascript.updateImportsOnFileMove.enabled": "always",
-  "javascript.inlayHints.parameterNames.enabled": "all",
-  "javascript.inlayHints.variableTypes.enabled": true,
-  "javascript.inlayHints.propertyDeclarationTypes.enabled": true,
-  "javascript.inlayHints.functionLikeReturnTypes.enabled": true,
 
   // ────────────────────────────────
   // ESLint Settings
@@ -461,7 +429,6 @@
   "scm.alwaysShowRepositories": true,
   "explorer.confirmDelete": true,
   "explorer.confirmDragAndDrop": true,
-  "explorer.compactFolders": false,
   "explorer.fileNesting.enabled": false,
 
   // ────────────────────────────────
