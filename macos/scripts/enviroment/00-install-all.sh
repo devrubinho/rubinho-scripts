@@ -311,6 +311,9 @@ run_script_with_check "20-install-gemini-cli.sh" "Gemini CLI" "command -v gemini
 # Zed check
 run_script_with_check "21-install-zed.sh" "Zed" "command -v zed || [ -d \"/Applications/Zed.app\" ]" "zed --version 2>&1 | head -1 || ([ -d \"/Applications/Zed.app\" ] && defaults read /Applications/Zed.app/Contents/Info.plist CFBundleShortVersionString 2>/dev/null || echo 'unknown')"
 
+# Zed configuration
+run_script_with_check "22-configure-zed.sh" "Zed Configuration" "true" "" "false"
+
 echo ""
 echo "=============================================="
 echo "🎉 INSTALLATION COMPLETE!"
