@@ -61,12 +61,11 @@
   // ────────────────────────────────
   // ESLint (auto fix on save)
   // ────────────────────────────────
+  "eslint.run": "onType",
   "editor.formatOnSave": false,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
-  "eslint.run": "onSave",
-  "eslint.format.enable": true,
 
   // ────────────────────────────────
   // Arquivos / Watchers
@@ -106,5 +105,5 @@
   // ────────────────────────────────
   // Extensions
   // ────────────────────────────────
-  "claudeCode.preferredLocation": "panel"
+  "claudeCode.preferredLocation": "sidebar"
 }
