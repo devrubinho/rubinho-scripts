@@ -46,6 +46,7 @@ mkdir -p "$VSCODE_USER_DIR"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 KEYBINDINGS_PATH="$VSCODE_USER_DIR/keybindings.json"
+SETTINGS_PATH="$VSCODE_USER_DIR/settings.json"
 
 echo "Detected VS Code directory: $VSCODE_USER_DIR"
 echo ""
@@ -53,6 +54,11 @@ echo ""
 echo "Copying keybindings.json..."
 cp "$SCRIPT_DIR/../../config/vscode-keybindings.json" "$KEYBINDINGS_PATH"
 echo "→ keybindings.json updated successfully!"
+
+echo ""
+echo "Copying settings.json..."
+cp "$SCRIPT_DIR/../../config/user-settings.json" "$SETTINGS_PATH"
+echo "→ settings.json updated successfully!"
 
 echo "=============================================="
 echo "============== [14] DONE ===================="
