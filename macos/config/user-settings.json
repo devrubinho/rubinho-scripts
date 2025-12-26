@@ -15,7 +15,7 @@
   // ────────────────────────────────
   // Window / macOS UX
   // ────────────────────────────────
-  "window.zoomLevel": 1,
+  "window.zoomLevel": 1.5,
   "editor.tabSize": 2,
   "window.title": "${rootName}",
   "workbench.startupEditor": "none",
@@ -107,5 +107,6 @@
   // ────────────────────────────────
   // Extensions
   // ────────────────────────────────
-  "claudeCode.preferredLocation": "sidebar"
+  "claudeCode.preferredLocation": "sidebar",
+  "security.workspace.trust.untrustedFiles": "open"
 }

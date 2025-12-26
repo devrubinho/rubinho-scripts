@@ -10,8 +10,8 @@
       "command": "editor.action.removeCommentLine"
   },
   {
-      "key": "cmd+l",
-      "command": "-aichat.insertselectionintochat"
+      "key": "cmd+;",
+      "command": "claude-vscode.terminal.open"
   },
   {
       "key": "cmd+shift+l",
